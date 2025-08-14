@@ -117,6 +117,11 @@ export const register = async (payload) => {
     return toData(response);
 };
 
+export const logout = async () => {
+    const response = await fetch(`${BASE_URL}/auth/logout`, { method: 'POST' });
+    return toData(response);
+};
+
 export const getAdminByUsername = async (username) => {
     const response = await fetch(`${BASE_URL}/admin/${encodeURIComponent(username)}`);
     return toData(response);
@@ -125,16 +130,6 @@ export const getAdminByUsername = async (username) => {
 export const createAdmin = async ({ username, password, email }) => {
     const response = await fetch(`${BASE_URL}/admin`, {
         method: 'POST',
-<<<<<<< Current (Your changes)
-        });
-        return response.json();
-        };
-
-        export const getExamResults = async (studentExamId) => {
-        const response = await fetch(`${BASE_URL}/student/exams/${studentExamId}/results`);
-        return response.json();
-        };
-=======
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password, email }),
     });
@@ -144,6 +139,88 @@ export const createAdmin = async ({ username, password, email }) => {
 export const getStudentExamHistory = async (studentId, { page = 0, size = 10, sortBy = 'startTime', sortDir = 'desc' } = {}) => {
     const params = new URLSearchParams({ page, size, sortBy, sortDir });
     const response = await fetch(`${BASE_URL}/student-exams/history/${studentId}?${params.toString()}`);
+    return toData(response);
+};
+
+// Exam management endpoints (/api/exam-management)
+export const mgmtCreateExam = async (examDto) => {
+    const response = await fetch(`${BASE_URL}/exam-management`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(examDto),
+    });
+    return toData(response);
+};
+
+export const mgmtGetExamsByTeacher = async (username, { page, size, sortBy = 'title' } = {}) => {
+    const params = new URLSearchParams();
+    if (page !== undefined && size !== undefined) {
+        params.set('page', String(page));
+        params.set('size', String(size));
+    }
+    if (sortBy) params.set('sortBy', sortBy);
+    const query = params.toString();
+    const url = `${BASE_URL}/exam-management/teacher/${encodeURIComponent(username)}${query ? `?${query}` : ''}`;
+    const response = await fetch(url);
+    return toData(response);
+};
+
+export const mgmtUpdateExamStatus = async (examId, { isActive }) => {
+    const response = await fetch(`${BASE_URL}/exam-management/${examId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive }),
+    });
+    return toData(response);
+};
+
+// Question endpoints (/api/questions)
+export const addQuestionDirect = async (questionDto) => {
+    const response = await fetch(`${BASE_URL}/questions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(questionDto),
+    });
+    return toData(response);
+};
+
+export const listQuestions = async ({ page = 0, size = 10, sortBy = 'id', sortDir = 'asc' } = {}) => {
+    const params = new URLSearchParams({ page, size, sortBy, sortDir });
+    const response = await fetch(`${BASE_URL}/questions?${params.toString()}`);
+    return toData(response);
+};
+
+export const getQuestionById = async (id) => {
+    const response = await fetch(`${BASE_URL}/questions/${id}`);
+    return toData(response);
+};
+
+export const deleteQuestion = async (id) => {
+    const response = await fetch(`${BASE_URL}/questions/${id}`, { method: 'DELETE' });
+    return toData(response);
+};
+
+// Student-exams variants (/api/student-exams)
+export const startStudentExam = async ({ examId, studentUsername }) => {
+    const response = await fetch(`${BASE_URL}/student-exams/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ examId, studentUsername }),
+    });
+    return toData(response);
+};
+
+export const submitAnswerGlobal = async (studentExamId, { questionId, selectedOption }) => {
+    const response = await fetch(`${BASE_URL}/student-exams/${studentExamId}/answers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionId, selectedOption }),
+    });
+    return toData(response);
+};
+
+export const completeStudentExam = async (studentExamId) => {
+    const response = await fetch(`${BASE_URL}/student-exams/${studentExamId}/complete`, { method: 'POST' });
     return toData(response);
 };
 
@@ -159,10 +236,19 @@ const api = {
     getExamResults,
     login,
     register,
+    logout,
     getAdminByUsername,
     createAdmin,
     getStudentExamHistory,
+    mgmtCreateExam,
+    mgmtGetExamsByTeacher,
+    mgmtUpdateExamStatus,
+    addQuestionDirect,
+    listQuestions,
+    getQuestionById,
+    deleteQuestion,
+    startStudentExam,
+    submitAnswerGlobal,
+    completeStudentExam,
 };
 export default api;
->>>>>>> Incoming (Background Agent changes)
-    
