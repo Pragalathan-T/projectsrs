@@ -6,10 +6,19 @@ import ExamResults from './components/ExamResults';
 import ExamInterface from './components/ExamInterface';
 import StudentExamList from './components/StudentExamList';
 import TeacherDashboard from './components/TeacherDashboard';
+import NavBar from './components/NavBar';
+import Login from './components/Login';
+import Register from './components/Register';
+import Profile from './components/Profile';
+import AttemptHistory from './components/AttemptHistory';
+import AdminUsers from './components/AdminUsers';
+import ExamDetails from './components/ExamDetails';
+import NotFound from './components/NotFound';
 
 function App() {
-return (
-<Router>
+ return (
+ <Router>
+  <NavBar role={(localStorage.getItem('role')||'STUDENT')} />
   <nav>
     <ul>
         <li><Link to="/teacher-dashboard">Teacher Dashboard</Link></li>
@@ -26,6 +35,13 @@ return (
                                 <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
                                   {/* Default route */}
                                   <Route path="/" element={<TeacherDashboard />} />
+                                  <Route path="/login" element={<Login />} />
+                                  <Route path="/register" element={<Register />} />
+                                  <Route path="/profile" element={<Profile />} />
+                                  <Route path="/history" element={<AttemptHistory />} />
+                                  <Route path="/admin/users" element={<AdminUsers />} />
+                                  <Route path="/exam-details" element={<ExamDetails />} />
+                                  <Route path="*" element={<NotFound />} />
                                   </Routes>
                                   </Router>
                                   );
