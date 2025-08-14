@@ -19,13 +19,10 @@ public static void main(String[] args) {
 SpringApplication.run(OnlineExamSystemApplication.class, args);
 }
 
-<<<<<<< Current (Your changes)
-    @Bean
-    @Profile("!test")
-=======
 @Bean
+@Profile("!test")
 @ConditionalOnBean(UserRepository.class)
->>>>>>> Incoming (Background Agent changes)
+
 CommandLineRunner initUsers(UserRepository repo, PasswordEncoder encoder) {
 return args -> {
 if (!repo.existsByUsername("admin1")) {
