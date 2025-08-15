@@ -2,102 +2,86 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import api from "../utils/api";
 
-function ExamInterface() {
-const location = useLocation();
-const { questions, studentExamId } = location.state || {};
+export default function ExamInterface(props) {
+  const runtimeLocation = useLocation();
+  const location = props.location || runtimeLocation;
+  const { questions, studentExamId } = location.state || {};
 
-const [currentIndex, setCurrentIndex] = useState(0);
-const [answers, setAnswers] = useState({});
-const [error, setError] = useState(null);
-const [submitting, setSubmitting] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
-if (!questions || questions.length === 0) {
-return <div>No questions found.</div>;
-}
+  if (!questions || questions.length === 0) {
+    return <div>No questions found.</div>;
+  }
 
-const currentQuestion = questions[currentIndex];
+  const current = questions[currentIndex];
 
-const handleOptionChange = (e) => {
-setAnswers({
-...answers,
-[currentQuestion.questionId]: e.target.value,
-});
-};
+  const handleChange = (e) => {
+    setAnswers({ ...answers, [current.questionId]: e.target.value });
+  };
 
-const handleNext = () => {
-if (currentIndex < questions.length - 1) {
-setCurrentIndex(currentIndex + 1);
-}
-};
+  const handleSubmit = async () => {
+    setError(null);
+    setSubmitting(true);
+    try {
+      for (const q of questions) {
+        await api.submitAnswer(studentExamId, {
+          questionId: q.questionId,
+          selectedOption: answers[q.questionId] || null,
+        });
+      }
+      await api.completeExam(studentExamId);
+    } catch {
+      setError("Failed to submit exam. Please try again.");
+    }
+    setSubmitting(false);
+  };
 
-const handlePrevious = () => {
-if (currentIndex > 0) {
-setCurrentIndex(currentIndex - 1);
-}
-};
-
-const handleSubmitExam = async () => {
-setError(null);
-setSubmitting(true);
-
-try {
-for (const q of questions) {
-await api.submitAnswer(studentExamId, {
-questionId: q.questionId,
-selectedOption: answers[q.questionId] || null,
-});
-}
-await api.completeExam(studentExamId);
-} catch (err) {
-setError("Failed to submit exam. Please try again.");
-}
-setSubmitting(false);
-};
-
-return (
+  return (
     <div>
-    <h2>{currentQuestion.questionText}</h2>
-    <form>
-    {["A", "B", "C", "D"].map((opt) => {
-    const label = `Option ${opt}`;
-    const optionValue = currentQuestion[`option${opt}`];
-    return (
-    <label key={opt} htmlFor={`${opt}-${currentQuestion.questionId}`}>
-    <input
-    type="radio"
-    id={`${opt}-${currentQuestion.questionId}`}
-    name={`option-${currentQuestion.questionId}`}
-    value={opt}
-    checked={answers[currentQuestion.questionId] === opt}
-    onChange={handleOptionChange}
-    aria-label={label}/>
-    {optionValue}
-    </label>
-    );
-    })}
+      <h2>{current.questionText}</h2>
+      <form>
+        {["A", "B", "C", "D"].map((opt) => (
+          <label key={opt} htmlFor={`${opt}-${current.questionId}`}>
+            <input
+              id={`${opt}-${current.questionId}`}
+              type="radio"
+              name={`option-${current.questionId}`}
+              value={opt}
+              checked={answers[current.questionId] === opt}
+              onChange={handleChange}
+              aria-label={`Option ${opt}`}
+            />
+            {current[`option${opt}`]}
+          </label>
+        ))}
+      </form>
 
-</form>
+      <button
+        onClick={() => currentIndex > 0 && setCurrentIndex(currentIndex - 1)}
+        disabled={currentIndex === 0}
+      >
+        Previous
+      </button>
+      <button
+        onClick={() =>
+          currentIndex < questions.length - 1 &&
+          setCurrentIndex(currentIndex + 1)
+        }
+        disabled={currentIndex === questions.length - 1}
+      >
+        Next
+      </button>
 
-<button onClick={handlePrevious} disabled={currentIndex === 0}>
-Previous
-</button>
-<button
-onClick={handleNext}
-disabled={currentIndex === questions.length - 1}
->
-Next
-</button>
+      {currentIndex === questions.length - 1 && (
+        <button onClick={handleSubmit} disabled={submitting}>
+          {submitting ? "Submitting..." : "Submit Exam"}
+        </button>
+      )}
 
-{currentIndex === questions.length - 1 && (
-<button onClick={handleSubmitExam} disabled={submitting}>
-{submitting ? "Submitting..." : "Submit Exam"}
-</button>
-)}
-
-{error && <p style={{ color: "red" }}>{error}</p>}
-</div>
-);
+      {error && <p style={{ color: "red" }}>{error}</p>}
+    </div>
+  );
 }
-
-export default ExamInterface;
-

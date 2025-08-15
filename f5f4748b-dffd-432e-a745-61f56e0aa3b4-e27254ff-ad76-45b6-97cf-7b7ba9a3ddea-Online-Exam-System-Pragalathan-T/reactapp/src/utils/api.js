@@ -1,4 +1,7 @@
-const BASE_URL = (process.env.REACT_APP_API_URL || 'http://localhost:8080/api');
+const RAW_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+const BASE_URL = RAW_BASE.endsWith('/api')
+  ? RAW_BASE
+  : `${RAW_BASE.replace(/\/$/, '')}/api`;
 
 const toData = async (response) => ({ data: await response.json() });
 const toDataTransform = async (response, transformFn) => {
@@ -6,6 +9,7 @@ const toDataTransform = async (response, transformFn) => {
   return { data: transformFn ? transformFn(json) : json };
 };
 
+// TeacherController (/api/exams)
 export const createExam = async (examData) => {
   const payload = { ...examData, createdBy: examData.createdBy || 'teacher1' };
   const response = await fetch(`${BASE_URL}/exams`, {
@@ -48,6 +52,7 @@ export const addQuestionToExam = async (examId, questionData) => {
   return toData(response);
 };
 
+// StudentController (/api/student/exams)
 export const getAvailableExams = async () => {
   const response = await fetch(`${BASE_URL}/student/exams`);
   return toData(response);
@@ -91,6 +96,7 @@ export const getExamResults = async (studentExamId) => {
   }));
 };
 
+// AuthController (/api/auth)
 export const login = async ({ username, password }) => {
   const response = await fetch(`${BASE_URL}/auth/login`, {
     method: 'POST',
@@ -114,6 +120,7 @@ export const logout = async () => {
   return toData(response);
 };
 
+// AdminController (/api/admin)
 export const getAdminByUsername = async (username) => {
   const response = await fetch(`${BASE_URL}/admin/${encodeURIComponent(username)}`);
   return toData(response);
@@ -128,6 +135,7 @@ export const createAdmin = async ({ username, password, email }) => {
   return toData(response);
 };
 
+// StudentExamController (/api/student-exams)
 export const getStudentExamHistory = async (
   studentId,
   { page = 0, size = 10, sortBy = 'startTime', sortDir = 'desc' } = {}
@@ -137,7 +145,56 @@ export const getStudentExamHistory = async (
   return toData(response);
 };
 
-// Exam management (/api/exam-management)
+export const startStudentExam = async ({ examId, studentUsername }) => {
+  const response = await fetch(`${BASE_URL}/student-exams/start`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ examId, studentUsername }),
+  });
+  return toData(response);
+};
+
+export const submitAnswerGlobal = async (studentExamId, { questionId, selectedOption }) => {
+  const response = await fetch(`${BASE_URL}/student-exams/${studentExamId}/answers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ questionId, selectedOption }),
+  });
+  return toData(response);
+};
+
+export const completeStudentExam = async (studentExamId) => {
+  const response = await fetch(`${BASE_URL}/student-exams/${studentExamId}/complete`, { method: 'POST' });
+  return toData(response);
+};
+
+// QuestionController (/api/questions)
+export const addQuestionDirect = async (questionDto) => {
+  const response = await fetch(`${BASE_URL}/questions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(questionDto),
+  });
+  return toData(response);
+};
+
+export const listQuestions = async ({ page = 0, size = 10, sortBy = 'id', sortDir = 'asc' } = {}) => {
+  const params = new URLSearchParams({ page, size, sortBy, sortDir });
+  const response = await fetch(`${BASE_URL}/questions?${params.toString()}`);
+  return toData(response);
+};
+
+export const getQuestionById = async (id) => {
+  const response = await fetch(`${BASE_URL}/questions/${id}`);
+  return toData(response);
+};
+
+export const deleteQuestion = async (id) => {
+  const response = await fetch(`${BASE_URL}/questions/${id}`, { method: 'DELETE' });
+  return toData(response);
+};
+
+// ExamController (/api/exam-management)
 export const mgmtCreateExam = async (examDto) => {
   const response = await fetch(`${BASE_URL}/exam-management`, {
     method: 'POST',
@@ -170,81 +227,70 @@ export const mgmtUpdateExamStatus = async (examId, { isActive }) => {
   return toData(response);
 };
 
-// Questions (/api/questions)
-export const addQuestionDirect = async (questionDto) => {
-  const response = await fetch(`${BASE_URL}/questions`, {
+// ValidationController (/api/validation)
+export const validateStudentAnswer = async (payload) => {
+  const response = await fetch(`${BASE_URL}/validation/studentAnswer`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(questionDto),
+    body: JSON.stringify(payload),
   });
   return toData(response);
 };
 
-export const listQuestions = async ({ page = 0, size = 10, sortBy = 'id', sortDir = 'asc' } = {}) => {
-  const params = new URLSearchParams({ page, size, sortBy, sortDir });
-  const response = await fetch(`${BASE_URL}/questions?${params.toString()}`);
-  return toData(response);
-};
-
-export const getQuestionById = async (id) => {
-  const response = await fetch(`${BASE_URL}/questions/${id}`);
-  return toData(response);
-};
-
-export const deleteQuestion = async (id) => {
-  const response = await fetch(`${BASE_URL}/questions/${id}`, { method: 'DELETE' });
-  return toData(response);
-};
-
-// Student-exams global (/api/student-exams)
-export const startStudentExam = async ({ examId, studentUsername }) => {
-  const response = await fetch(`${BASE_URL}/student-exams/start`, {
+export const validateQuestion = async (payload) => {
+  const response = await fetch(`${BASE_URL}/validation/question`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ examId, studentUsername }),
+    body: JSON.stringify(payload),
   });
   return toData(response);
 };
 
-export const submitAnswerGlobal = async (studentExamId, { questionId, selectedOption }) => {
-  const response = await fetch(`${BASE_URL}/student-exams/${studentExamId}/answers`, {
+export const validateExam = async (payload) => {
+  const response = await fetch(`${BASE_URL}/validation/exam`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ questionId, selectedOption }),
+    body: JSON.stringify(payload),
   });
-  return toData(response);
-};
-
-export const completeStudentExam = async (studentExamId) => {
-  const response = await fetch(`${BASE_URL}/student-exams/${studentExamId}/complete`, { method: 'POST' });
   return toData(response);
 };
 
 const api = {
+  // teacher
   createExam,
   getExamsByTeacher,
   updateExamStatus,
   addQuestionToExam,
+  // student (controller)
   getAvailableExams,
   startExam,
   submitAnswer,
   completeExam,
   getExamResults,
+  // auth
   login,
   register,
   logout,
+  // admin
   getAdminByUsername,
   createAdmin,
+  // student-exams
   getStudentExamHistory,
-  mgmtCreateExam,
-  mgmtGetExamsByTeacher,
-  mgmtUpdateExamStatus,
+  startStudentExam,
+  submitAnswerGlobal,
+  completeStudentExam,
+  // questions
   addQuestionDirect,
   listQuestions,
   getQuestionById,
   deleteQuestion,
-  startStudentExam,
-  submitAnswerGlobal,
-  completeStudentExam,
+  // exam-management
+  mgmtCreateExam,
+  mgmtGetExamsByTeacher,
+  mgmtUpdateExamStatus,
+  // validation
+  validateStudentAnswer,
+  validateQuestion,
+  validateExam,
 };
 export default api;

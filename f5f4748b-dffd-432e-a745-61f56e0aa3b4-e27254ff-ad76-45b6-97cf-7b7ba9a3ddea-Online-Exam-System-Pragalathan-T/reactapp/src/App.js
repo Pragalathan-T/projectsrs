@@ -14,37 +14,41 @@ import AttemptHistory from './components/AttemptHistory';
 import AdminUsers from './components/AdminUsers';
 import ExamDetails from './components/ExamDetails';
 import NotFound from './components/NotFound';
+import QuestionsAdmin from './components/QuestionsAdmin';
+import ExamManagement from './components/ExamManagement';
 
 function App() {
- return (
- <Router>
-  <NavBar role={(localStorage.getItem('role')||'STUDENT')} />
-  <nav>
-    <ul>
-        <li><Link to="/teacher-dashboard">Teacher Dashboard</Link></li>
-            <li><Link to="/create-exam">Create Exam</Link></li>
-                <li><Link to="/student-exams">Student Exams</Link></li>
-                  </ul>
-                    </nav>
+  return (
+    <Router>
+      <NavBar role={(localStorage.getItem('role') || 'STUDENT')} />
+      <nav>
+        <ul>
+          <li><Link to="/teacher-dashboard">Teacher Dashboard</Link></li>
+          <li><Link to="/create-exam">Create Exam</Link></li>
+          <li><Link to="/student-exams">Student Exams</Link></li>
+          <li><Link to="/admin/questions">Questions Admin</Link></li>
+          <li><Link to="/admin/exam-management">Exam Management</Link></li>
+        </ul>
+      </nav>
 
-                      <Routes>
-                        <Route path="/create-exam" element={<ExamCreator />} />
-                          <Route path="/exam-results/:studentExamId" element={<ExamResults />} />
-                            <Route path="/exam/:studentExamId" element={<ExamInterface />} />
-                              <Route path="/student-exams" element={<StudentExamList />} />
-                                <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
-                                  {/* Default route */}
-                                  <Route path="/" element={<TeacherDashboard />} />
-                                  <Route path="/login" element={<Login />} />
-                                  <Route path="/register" element={<Register />} />
-                                  <Route path="/profile" element={<Profile />} />
-                                  <Route path="/history" element={<AttemptHistory />} />
-                                  <Route path="/admin/users" element={<AdminUsers />} />
-                                  <Route path="/exam-details" element={<ExamDetails />} />
-                                  <Route path="*" element={<NotFound />} />
-                                  </Routes>
-                                  </Router>
-                                  );
-                                  }
-
-                                  export default App;
+      <Routes>
+        <Route path="/create-exam" element={<ExamCreator />} />
+        <Route path="/exam-results/:studentExamId" element={<ExamResults />} />
+        <Route path="/exam/:studentExamId" element={<ExamInterface />} />
+        <Route path="/student-exams" element={<StudentExamList />} />
+        <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
+        <Route path="/" element={<TeacherDashboard />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/history" element={<AttemptHistory />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/exam-details" element={<ExamDetails />} />
+        <Route path="/admin/questions" element={<QuestionsAdmin />} />
+        <Route path="/admin/exam-management" element={<ExamManagement />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
+  );
+}
+export default App;
