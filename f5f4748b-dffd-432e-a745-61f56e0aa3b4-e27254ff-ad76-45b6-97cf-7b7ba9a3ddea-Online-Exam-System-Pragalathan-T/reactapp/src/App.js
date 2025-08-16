@@ -16,6 +16,7 @@ import ExamDetails from './components/ExamDetails';
 import NotFound from './components/NotFound';
 import QuestionsAdmin from './components/QuestionsAdmin';
 import ExamManagement from './components/ExamManagement';
+import LandingPage from './components/LandingPage';
 
 function App() {
   return (
@@ -37,7 +38,7 @@ function App() {
         <Route path="/exam/:studentExamId" element={<ExamInterface />} />
         <Route path="/student-exams" element={<StudentExamList />} />
         <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
-        <Route path="/" element={<TeacherDashboard />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
