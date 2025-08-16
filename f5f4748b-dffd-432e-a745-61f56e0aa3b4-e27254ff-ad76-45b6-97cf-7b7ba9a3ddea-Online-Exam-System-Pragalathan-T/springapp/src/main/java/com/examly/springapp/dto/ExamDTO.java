@@ -2,6 +2,7 @@ package com.examly.springapp.dto;
 
 import lombok.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 @Data
 @NoArgsConstructor
@@ -22,7 +23,8 @@ private Integer timeLimit;
 private LocalDateTime expiryDate;
 private Integer maxAttempts;
 private String feedback;
-private String imageurl;
+@JsonAlias({"imageurl"})
+private String imageUrl;
 
 // Optional: remove this constructor if not required
 public ExamDTO(String title, String description, Integer duration, String createdBy, Boolean isActive) {

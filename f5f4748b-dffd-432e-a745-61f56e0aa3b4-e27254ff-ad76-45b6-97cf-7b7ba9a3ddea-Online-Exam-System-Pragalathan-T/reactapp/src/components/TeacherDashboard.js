@@ -4,16 +4,20 @@ import api from '../utils/api';
 export default function TeacherDashboard({ teacherUsername }) {
     const [exams, setExams] = useState([]);
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!teacherUsername) return;
+        setLoading(true);
         api.getExamsByTeacher(teacherUsername)
             .then(res => {
                 setExams(res.data);
+                setError(null);
             })
             .catch(() => {
-                setError('Failed to load exams.');
-            });
+                setError('Unexpected error');
+            })
+            .finally(() => setLoading(false));
     }, [teacherUsername]);
 
     const toggleActive = async (examId, isActive) => {
@@ -25,10 +29,11 @@ export default function TeacherDashboard({ teacherUsername }) {
                 )
             );
         } catch {
-            setError('Failed to update exam status.');
+            setError('Unexpected error');
         }
     };
 
+    if (loading) return <div>Loading...</div>;
     if (error) {
         return <div>{error}</div>;
     }
