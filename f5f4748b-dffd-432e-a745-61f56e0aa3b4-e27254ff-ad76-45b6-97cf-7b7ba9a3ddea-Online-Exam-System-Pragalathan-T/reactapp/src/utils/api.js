@@ -20,8 +20,16 @@ export const createExam = async (examData) => {
   return toData(response);
 };
 
-export const getExamsByTeacher = async (teacherUsername) => {
-  const response = await fetch(`${BASE_URL}/exams?createdBy=${encodeURIComponent(teacherUsername)}`);
+export const getExamsByTeacher = async (teacherUsername, { page, size, sortBy = 'createdAt', sortDir = 'desc', status } = {}) => {
+  const params = new URLSearchParams({ createdBy: teacherUsername });
+  if (page !== undefined && size !== undefined) {
+    params.set('page', String(page));
+    params.set('size', String(size));
+    if (sortBy) params.set('sortBy', sortBy);
+    if (sortDir) params.set('sortDir', sortDir);
+  }
+  if (status) params.set('status', status);
+  const response = await fetch(`${BASE_URL}/exams?${params.toString()}`);
   return toData(response);
 };
 

@@ -4,7 +4,7 @@ import { validateExamData, validateQuestionData } from "../utils/validation";
 import { ERROR_MESSAGES } from "../utils/constants";
 
 export default function ExamCreator() {
-  const [examData, setExamData] = useState({ title: "", description: "", duration: "" });
+  const [examData, setExamData] = useState({ title: "", description: "", duration: "", topic: "", difficulty: "EASY", expiryDate: "", timeLimit: "", maxAttempts: "", feedback: "", imageUrl: "" });
   const [errors, setErrors] = useState({});
   const [examId, setExamId] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -20,15 +20,36 @@ export default function ExamCreator() {
   });
   const [questions, setQuestions] = useState([]);
 
+  const extraExamValidation = (e) => {
+    const eerrs = {};
+    if (examData.maxAttempts && (isNaN(examData.maxAttempts) || Number(examData.maxAttempts) < 0)) eerrs.maxAttempts = 'Max attempts must be >= 0';
+    if (examData.timeLimit && (isNaN(examData.timeLimit) || Number(examData.timeLimit) < 0)) eerrs.timeLimit = 'Time limit must be >= 0';
+    return eerrs;
+  };
+
   const handleSaveExam = async () => {
-    const examErrors = validateExamData(examData);
+    const examErrors = { ...validateExamData(examData), ...extraExamValidation() };
     if (Object.keys(examErrors).length) {
       setErrors(examErrors);
       return;
     }
     try {
       setSaving(true);
-      const res = await api.createExam(examData);
+      const payload = {
+        title: examData.title,
+        description: examData.description,
+        duration: Number(examData.duration),
+        createdBy: examData.createdBy || 'teacher1',
+        isActive: false,
+        topic: examData.topic || null,
+        difficulty: examData.difficulty || null,
+        expiryDate: examData.expiryDate || null,
+        timeLimit: examData.timeLimit ? Number(examData.timeLimit) : null,
+        maxAttempts: examData.maxAttempts ? Number(examData.maxAttempts) : null,
+        feedback: examData.feedback || null,
+        imageUrl: examData.imageUrl || null,
+      };
+      const res = await api.createExam(payload);
       setExamId(res.data.examId);
       setErrors({});
     } catch {
@@ -100,6 +121,49 @@ export default function ExamCreator() {
         </label>
         {errors.duration && <span style={{ color: "red" }}>{errors.duration}</span>}
       </div>
+
+      <div>
+        <label>Topic
+          <input value={examData.topic} onChange={(e)=>setExamData({...examData, topic:e.target.value})} />
+        </label>
+      </div>
+      <div>
+        <label>Difficulty
+          <select value={examData.difficulty} onChange={(e)=>setExamData({...examData, difficulty:e.target.value})}>
+            <option value="EASY">EASY</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="HARD">HARD</option>
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>Expiry Date
+          <input type="datetime-local" value={examData.expiryDate} onChange={(e)=>setExamData({...examData, expiryDate:e.target.value})} />
+        </label>
+      </div>
+      <div>
+        <label>Time Limit (seconds)
+          <input type="number" value={examData.timeLimit} onChange={(e)=>setExamData({...examData, timeLimit:e.target.value})} />
+        </label>
+        {errors.timeLimit && <span style={{ color: "red" }}>{errors.timeLimit}</span>}
+      </div>
+      <div>
+        <label>Max Attempts
+          <input type="number" value={examData.maxAttempts} onChange={(e)=>setExamData({...examData, maxAttempts:e.target.value})} />
+        </label>
+        {errors.maxAttempts && <span style={{ color: "red" }}>{errors.maxAttempts}</span>}
+      </div>
+      <div>
+        <label>Feedback
+          <textarea value={examData.feedback} onChange={(e)=>setExamData({...examData, feedback:e.target.value})} />
+        </label>
+      </div>
+      <div>
+        <label>Image URL
+          <input value={examData.imageUrl} onChange={(e)=>setExamData({...examData, imageUrl:e.target.value})} />
+        </label>
+      </div>
+
       <button onClick={handleSaveExam}>Save Exam</button>
 
       {(examId || saving) && (

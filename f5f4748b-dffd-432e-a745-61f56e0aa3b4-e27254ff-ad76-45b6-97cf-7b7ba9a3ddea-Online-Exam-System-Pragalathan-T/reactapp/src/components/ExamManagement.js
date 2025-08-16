@@ -37,7 +37,7 @@ export default function ExamManagement({ username = 'teacher1' }) {
             <div>{e.description}</div>
             <div>Duration: {e.duration}</div>
             <div>Active: {String(e.isActive)}</div>
-            <button onClick={() => toggle(e.id || e.examId, !e.isActive)}>{e.isActive ? 'Deactivate' : 'Activate'}</button>
+            <button onClick={() => toggle(e.examId, !e.isActive)}>{e.isActive ? 'Deactivate' : 'Activate'}</button>
           </li>
         ))}
       </ul>

@@ -26,16 +26,33 @@ exam.setDescription(examDTO.getDescription());
 exam.setDuration(examDTO.getDuration());
 exam.setCreatedBy(examDTO.getCreatedBy());
 exam.setIsActive(examDTO.getIsActive());
+// extra fields
+exam.setTopic(examDTO.getTopic());
+exam.setDifficulty(examDTO.getDifficulty());
+exam.setExpiryDate(examDTO.getExpiryDate());
+exam.setTimeLimit(examDTO.getTimeLimit());
+exam.setMaxAttempts(examDTO.getMaxAttempts());
+exam.setFeedback(examDTO.getFeedback());
+exam.setImageUrl(examDTO.getImageUrl());
 
 Exam savedExam = examService.createExam(exam);
 
-ExamDTO responseDTO = new ExamDTO(
-savedExam.getTitle(),
-savedExam.getDescription(),
-savedExam.getDuration(),
-savedExam.getCreatedBy(),
-savedExam.getIsActive()
-);
+ExamDTO responseDTO = ExamDTO.builder()
+.examId(savedExam.getExamId())
+.title(savedExam.getTitle())
+.description(savedExam.getDescription())
+.duration(savedExam.getDuration())
+.createdBy(savedExam.getCreatedBy())
+.createdAt(savedExam.getCreatedAt())
+.isActive(savedExam.getIsActive())
+.topic(savedExam.getTopic())
+.difficulty(savedExam.getDifficulty())
+.expiryDate(savedExam.getExpiryDate())
+.timeLimit(savedExam.getTimeLimit())
+.maxAttempts(savedExam.getMaxAttempts())
+.feedback(savedExam.getFeedback())
+.imageUrl(savedExam.getImageUrl())
+.build();
 
 return ResponseEntity.ok(responseDTO);
 }
@@ -57,13 +74,23 @@ exams = examService.getExamsByTeacher(username);
 }
 
 List<ExamDTO> examDTOs = exams.stream()
-.map(e -> new ExamDTO(
-e.getTitle(),
-e.getDescription(),
-e.getDuration(),
-e.getCreatedBy(),
-e.getIsActive()
-)).collect(Collectors.toList());
+.map(e -> ExamDTO.builder()
+.examId(e.getExamId())
+.title(e.getTitle())
+.description(e.getDescription())
+.duration(e.getDuration())
+.createdBy(e.getCreatedBy())
+.createdAt(e.getCreatedAt())
+.isActive(e.getIsActive())
+.topic(e.getTopic())
+.difficulty(e.getDifficulty())
+.expiryDate(e.getExpiryDate())
+.timeLimit(e.getTimeLimit())
+.maxAttempts(e.getMaxAttempts())
+.feedback(e.getFeedback())
+.imageUrl(e.getImageUrl())
+.build())
+.collect(Collectors.toList());
 
 return ResponseEntity.ok(examDTOs);
 }
