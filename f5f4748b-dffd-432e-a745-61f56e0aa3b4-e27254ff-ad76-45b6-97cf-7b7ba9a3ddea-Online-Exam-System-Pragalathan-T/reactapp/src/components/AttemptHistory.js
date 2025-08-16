@@ -7,18 +7,28 @@ export default function AttemptHistory({ studentId = 1 }) {
 	const [size] = useState(10);
 	const [data, setData] = useState({ content: [], totalPages: 0 });
 	const [error, setError] = useState(null);
+	const [sortBy, setSortBy] = useState('startTime');
+	const [sortDir, setSortDir] = useState('desc');
 
 	useEffect(() => {
-		api.getStudentExamHistory(studentId, { page, size })
+		api.getStudentExamHistory(studentId, { page, size, sortBy, sortDir })
 			.then(res => setData(res.data))
 			.catch(() => setError('Failed to load history'));
-	}, [studentId, page, size]);
+	}, [studentId, page, size, sortBy, sortDir]);
 
 	if (error) return <div className="history"><p className="history__error">{error}</p></div>;
 
 	return (
 		<div className="history">
 			<h2>Attempt History</h2>
+			<div style={{ display:'flex', gap:12, marginBottom:12, flexWrap:'wrap' }}>
+				<select value={sortBy} onChange={(e)=>{ setPage(0); setSortBy(e.target.value); }}>
+					<option value="startTime">Sort: Started</option>
+					<option value="endTime">Sort: Ended</option>
+					<option value="score">Sort: Score</option>
+				</select>
+				<button onClick={()=> setSortDir(d => d === 'asc' ? 'desc' : 'asc')}>Dir: {sortDir.toUpperCase()}</button>
+			</div>
 			<table className="history__table">
 				<thead>
 					<tr>

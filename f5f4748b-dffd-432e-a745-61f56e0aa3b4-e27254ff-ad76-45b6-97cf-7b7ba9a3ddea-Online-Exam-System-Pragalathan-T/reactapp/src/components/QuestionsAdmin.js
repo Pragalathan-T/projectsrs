@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import api from '../utils/api';
 import './QuestionsAdmin.css';
 
@@ -20,6 +20,11 @@ export default function QuestionsAdmin() {
   });
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
+
+  // client-side filters
+  const [q, setQ] = useState('');
+  const [topic, setTopic] = useState('');
+  const [difficulty, setDifficulty] = useState('');
 
   const load = async () => {
     try {
@@ -46,22 +51,48 @@ export default function QuestionsAdmin() {
     try { await api.deleteQuestion(id); load(); } catch { setErr('Delete failed'); }
   };
 
+  const processed = useMemo(() => {
+    let rows = (data.content || []);
+    if (q) {
+      const l = q.toLowerCase();
+      rows = rows.filter(x => (x.questionText||'').toLowerCase().includes(l));
+    }
+    if (topic) rows = rows.filter(x => (x.topic||'').toLowerCase() === topic.toLowerCase());
+    if (difficulty) rows = rows.filter(x => (x.difficulty||'').toLowerCase() === difficulty.toLowerCase());
+    return rows;
+  }, [data, q, topic, difficulty]);
+
   return (
     <div className="qa">
       <h2>Questions</h2>
       {err && <p className="qa__err">{err}</p>}
       {msg && <p className="qa__msg">{msg}</p>}
+
+      <div style={{ display:'flex', gap:12, marginBottom:12, flexWrap:'wrap' }}>
+        <input placeholder="Search text" value={q} onChange={(e)=>{ setQ(e.target.value); setPage(0); }} />
+        <input placeholder="Filter topic" value={topic} onChange={(e)=>{ setTopic(e.target.value); setPage(0); }} />
+        <select value={difficulty} onChange={(e)=>{ setDifficulty(e.target.value); setPage(0); }}>
+          <option value="">All difficulties</option>
+          <option value="EASY">EASY</option>
+          <option value="MEDIUM">MEDIUM</option>
+          <option value="HARD">HARD</option>
+        </select>
+      </div>
+
       <table className="qa__table">
         <thead><tr><th>ID</th><th>Text</th><th>Marks</th><th>Actions</th></tr></thead>
         <tbody>
-          {(data.content || []).map(q => (
-            <tr key={q.id}>
-              <td>{q.id}</td>
-              <td>{q.questionText}</td>
-              <td>{q.marks}</td>
-              <td><button onClick={() => remove(q.id)}>Delete</button></td>
-            </tr>
-          ))}
+          {processed.map(qr => {
+            const rowId = qr.questionId ?? qr.id;
+            return (
+              <tr key={rowId}>
+                <td>{rowId}</td>
+                <td>{qr.questionText}</td>
+                <td>{qr.marks}</td>
+                <td><button onClick={() => remove(rowId)}>Delete</button></td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       <div className="qa__pager">
