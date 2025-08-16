@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import api from '../utils/api';
+import Sidebar from './Sidebar';
 
 export default function TeacherDashboard({ teacherUsername }) {
     const [exams, setExams] = useState([]);
@@ -58,44 +59,49 @@ export default function TeacherDashboard({ teacherUsername }) {
     }
 
     return (
-        <div>
-            <h1>Teacher Dashboard</h1>
+        <div style={{ display:'flex' }}>
+            <Sidebar role={localStorage.getItem('role') || 'TEACHER'} />
+            <div style={{ flex:1, padding:16 }}>
+                <h1>Teacher Dashboard</h1>
 
-            <div style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
-                <input placeholder="Search title/description/topic" value={q} onChange={(e)=>setQ(e.target.value)} />
-                <select value={status} onChange={(e)=>{ setPage(0); setStatus(e.target.value); }}>
-                    <option value="">All</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="upcoming">Upcoming</option>
-                    <option value="expired">Expired</option>
-                </select>
-                <select value={sortBy} onChange={(e)=>{ setPage(0); setSortBy(e.target.value); }}>
-                    <option value="createdAt">Sort: Created</option>
-                    <option value="title">Sort: Title</option>
-                    <option value="duration">Sort: Duration</option>
-                </select>
-                <button onClick={()=> setSortDir(d => d === 'asc' ? 'desc' : 'asc')}>Dir: {sortDir.toUpperCase()}</button>
-            </div>
+                <div className="controls">
+                    <input className="input" placeholder="Search title/description/topic" value={q} onChange={(e)=>setQ(e.target.value)} />
+                    <select className="input" value={status} onChange={(e)=>{ setPage(0); setStatus(e.target.value); }}>
+                        <option value="">All</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="expired">Expired</option>
+                    </select>
+                    <select className="input" value={sortBy} onChange={(e)=>{ setPage(0); setSortBy(e.target.value); }}>
+                        <option value="createdAt">Sort: Created</option>
+                        <option value="title">Sort: Title</option>
+                        <option value="duration">Sort: Duration</option>
+                    </select>
+                    <button className="button" onClick={()=> setSortDir(d => d === 'asc' ? 'desc' : 'asc')}>Dir: {sortDir.toUpperCase()}</button>
+                </div>
 
-            <ul>
-                {filtered.map(exam => (
-                    <li key={exam.examId}>
-                        <h2>{exam.title}</h2>
-                        <p>{exam.description}</p>
-                        <p>Duration: {exam.duration} minutes</p>
-                        <p>Status: {exam.isActive ? 'Active' : 'Inactive'}</p>
-                        <button onClick={() => toggleActive(exam.examId, exam.isActive)}>
-                            {exam.isActive ? 'Deactivate' : 'Activate'}
-                        </button>
-                    </li>
-                ))}
-            </ul>
+                <div className="card">
+                    <ul>
+                        {filtered.map(exam => (
+                            <li key={exam.examId} style={{ padding:8, borderBottom:'1px solid var(--border)' }}>
+                                <h3 style={{ margin:'4px 0' }}>{exam.title}</h3>
+                                <p style={{ margin:'4px 0', color:'var(--muted)' }}>{exam.description}</p>
+                                <p style={{ margin:'4px 0' }}>Duration: {exam.duration} minutes</p>
+                                <p style={{ margin:'4px 0' }}>Status: <span className={`pill ${exam.isActive ? 'pill-success' : ''}`}>{exam.isActive ? 'Active' : 'Inactive'}</span></p>
+                                <button className="button" onClick={() => toggleActive(exam.examId, exam.isActive)}>
+                                    {exam.isActive ? 'Deactivate' : 'Activate'}
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
-                <button disabled={page===0} onClick={() => setPage(p=>p-1)}>Prev</button>
-                <span>Page {page+1}</span>
-                <button onClick={() => setPage(p=>p+1)}>Next</button>
+                <div className="pager">
+                    <button className="button" disabled={page===0} onClick={() => setPage(p=>p-1)}>Prev</button>
+                    <span>Page {page+1}</span>
+                    <button className="button" onClick={() => setPage(p=>p+1)}>Next</button>
+                </div>
             </div>
         </div>
     );
