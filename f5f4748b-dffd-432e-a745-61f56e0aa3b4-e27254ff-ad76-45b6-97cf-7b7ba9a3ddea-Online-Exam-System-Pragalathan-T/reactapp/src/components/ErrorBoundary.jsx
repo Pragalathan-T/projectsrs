@@ -14,12 +14,17 @@ export default class ErrorBoundary extends React.Component {
   }
   render() {
     if (this.state.hasError) {
+      const message = this.state.error && (this.state.error.message || String(this.state.error));
+      const stack = this.state.error && this.state.error.stack;
       return (
         <div style={{ padding: 24 }}>
           <h1>Something went wrong</h1>
-          <pre style={{ whiteSpace: 'pre-wrap', color: '#b91c1c', background: '#fee2e2', padding: 12, borderRadius: 8 }}>
-            {String(this.state.error)}
-          </pre>
+          <p style={{ color: '#b91c1c' }}>{message}</p>
+          {stack && (
+            <pre style={{ whiteSpace: 'pre-wrap', color: '#7f1d1d', background: '#fee2e2', padding: 12, borderRadius: 8, marginTop: 8 }}>
+              {stack}
+            </pre>
+          )}
         </div>
       );
     }
