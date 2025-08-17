@@ -2,46 +2,37 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import './NavBar.css';
+import { useAuth } from '../context/AuthContext';
 
-export default function NavBar({ role = 'STUDENT' }) {
+export default function NavBar() {
   const navigate = useNavigate();
-  const logout = async () => {
+  const { isAuthenticated, username, logout } = useAuth();
+
+  const handleLogout = async () => {
     try { await api.logout(); } catch {}
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('role');
+    await logout();
     navigate('/');
   };
 
   return (
     <nav className="nav">
-      <div className="nav__brand">Online Exam</div>
+      <div className="nav__brand"><Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Online Exam</Link></div>
       <ul className="nav__links">
+        <li><Link to="/">Home</Link></li>
         <li><Link to="/about">About</Link></li>
         <li><Link to="/contact">Contact</Link></li>
         <li><Link to="/help">Help/FAQ</Link></li>
-        {role === 'TEACHER' && (
+        {!isAuthenticated ? (
           <>
-            <li><Link to="/teacher-dashboard">Dashboard</Link></li>
-            <li><Link to="/create-exam">Create Exam</Link></li>
+            <li><Link to="/login">Login</Link></li>
+            <li><Link to="/register">Register</Link></li>
+          </>
+        ) : (
+          <>
+            <li><Link to="/profile">{username || 'Profile'}</Link></li>
+            <li><button className="nav__logout" onClick={handleLogout}>Logout</button></li>
           </>
         )}
-        {role === 'STUDENT' && (
-          <>
-            <li><Link to="/student-exams">Exams</Link></li>
-            <li><Link to="/history">History</Link></li>
-          </>
-        )}
-        {role === 'ADMIN' && (
-          <>
-            <li><Link to="/admin/users">Users</Link></li>
-            <li><Link to="/admin/questions">Questions</Link></li>
-            <li><Link to="/admin/exam-management">Exam Management</Link></li>
-          </>
-        )}
-        <li><Link to="/profile">Profile</Link></li>
-        <li><Link to="/login">Login</Link></li>
-        <li><button className="nav__logout" onClick={logout}>Logout</button></li>
       </ul>
     </nav>
   );

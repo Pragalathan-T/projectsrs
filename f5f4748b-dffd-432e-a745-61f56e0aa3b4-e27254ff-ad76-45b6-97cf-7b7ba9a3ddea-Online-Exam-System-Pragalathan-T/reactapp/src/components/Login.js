@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../utils/api';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Login.css';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState(null);
 	const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
 
 	const onSubmit = async (e) => {
 		e.preventDefault();
 		setError(null);
 		try {
-			const res = await api.login({ username, password });
-			localStorage.setItem('token', res.data.token || 'dummy-token');
-			localStorage.setItem('username', res.data.username || username);
-			const role = res.data.role || 'STUDENT';
-			localStorage.setItem('role', role);
-			const dest = role === 'ADMIN' ? '/admin/exam-management' : role === 'TEACHER' ? '/teacher-dashboard' : '/student-exams';
+      const { role } = await login({ username, password });
+      const fromState = location.state && location.state.from;
+      if (fromState) return navigate(fromState, { replace: true });
+      const dest = `/${role.toLowerCase()}/dashboard`;
 			navigate(dest);
 		} catch (err) {
 			setError('Invalid credentials');
