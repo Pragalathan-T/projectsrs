@@ -17,7 +17,7 @@ export default function Sidebar({ role = (localStorage.getItem('role') || 'STUDE
         )}
         {role === 'TEACHER' && (
           <>
-            <li><Link to="/teacher-dashboard">Dashboard</Link></li>
+            <li><Link to="/teacher/dashboard">Dashboard</Link></li>
             <li><Link to="/create-exam">Create Exam</Link></li>
             <li><Link to="/admin/exam-management">Manage Exams</Link></li>
           </>
