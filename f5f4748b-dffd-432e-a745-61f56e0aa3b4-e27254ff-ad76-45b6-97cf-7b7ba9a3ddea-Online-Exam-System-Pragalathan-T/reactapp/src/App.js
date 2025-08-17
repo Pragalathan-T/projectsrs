@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Link } from 'react-router-dom';
 
 import ExamCreator from './components/ExamCreator';
 import ExamResults from './components/ExamResults';
@@ -31,10 +31,10 @@ function AdminDashboard() {
       <div style={{ flex:1, padding:16 }}>
         <h1>Welcome, {username} (ADMIN)</h1>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:16 }}>
-          <a className="card" href="/admin/exam-management"><div className="card__title">Manage Exams</div></a>
-          <a className="card" href="/admin/users"><div className="card__title">Manage Users</div></a>
-          <a className="card" href="/admin/questions"><div className="card__title">Manage Questions</div></a>
-          <a className="card" href="/history"><div className="card__title">View Results</div></a>
+          <Link className="card" to="/admin/exam-management"><div className="card__title">Manage Exams</div></Link>
+          <Link className="card" to="/admin/users"><div className="card__title">Manage Users</div></Link>
+          <Link className="card" to="/admin/questions"><div className="card__title">Manage Questions</div></Link>
+          <Link className="card" to="/history"><div className="card__title">View Results</div></Link>
         </div>
       </div>
     </div>
@@ -49,9 +49,9 @@ function TeacherHome() {
       <div style={{ flex:1, padding:16 }}>
         <h1>Welcome, {username} (TEACHER)</h1>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:16 }}>
-          <a className="card" href="/create-exam"><div className="card__title">Create Exam</div></a>
-          <a className="card" href="/admin/exam-management"><div className="card__title">Manage Exams</div></a>
-          <a className="card" href="/history"><div className="card__title">Manage Results</div></a>
+          <Link className="card" to="/create-exam"><div className="card__title">Create Exam</div></Link>
+          <Link className="card" to="/admin/exam-management"><div className="card__title">Manage Exams</div></Link>
+          <Link className="card" to="/history"><div className="card__title">Manage Results</div></Link>
         </div>
       </div>
     </div>
@@ -66,9 +66,9 @@ function StudentDashboard() {
       <div style={{ flex:1, padding:16 }}>
         <h1>Welcome, {username} (STUDENT)</h1>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:16 }}>
-          <a className="card" href="/student-exams"><div className="card__title">Exam List</div></a>
-          <a className="card" href="/history"><div className="card__title">Attempt History</div></a>
-          <a className="card" href="/history"><div className="card__title">Results</div></a>
+          <Link className="card" to="/student-exams"><div className="card__title">Exam List</div></Link>
+          <Link className="card" to="/history"><div className="card__title">Attempt History</div></Link>
+          <Link className="card" to="/history"><div className="card__title">Results</div></Link>
         </div>
       </div>
     </div>
