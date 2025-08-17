@@ -6,6 +6,11 @@ import './index.css';
 import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
+// Ensure a valid initial hash path for HashRouter
+if (!window.location.hash || !window.location.hash.startsWith('#/')) {
+  window.location.hash = '#/';
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
