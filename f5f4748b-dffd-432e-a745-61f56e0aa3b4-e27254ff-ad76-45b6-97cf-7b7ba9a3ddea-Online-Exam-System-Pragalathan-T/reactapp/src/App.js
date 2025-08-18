@@ -1,6 +1,7 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+// Components
 import ExamCreator from './components/ExamCreator';
 import ExamResults from './components/ExamResults';
 import ExamInterface from './components/ExamInterface';
@@ -18,38 +19,71 @@ import QuestionsAdmin from './components/QuestionsAdmin';
 import ExamManagement from './components/ExamManagement';
 import LandingPage from './components/LandingPage';
 
+// App Styles
+import './App.css';
+
 function App() {
+  const [userRole, setUserRole] = useState('STUDENT');
+
+  // Update user role when localStorage changes
+  useEffect(() => {
+    const updateRole = () => {
+      const role = localStorage.getItem('role') || 'STUDENT';
+      setUserRole(role);
+    };
+
+    // Initial role check
+    updateRole();
+
+    // Listen for storage changes (when user logs in/out)
+    window.addEventListener('storage', updateRole);
+    
+    // Custom event for role changes within the same tab
+    window.addEventListener('roleChanged', updateRole);
+
+    return () => {
+      window.removeEventListener('storage', updateRole);
+      window.removeEventListener('roleChanged', updateRole);
+    };
+  }, []);
+
   return (
     <Router>
-      <NavBar role={(localStorage.getItem('role') || 'STUDENT')} />
-      <nav>
-        <ul>
-          <li><Link to="/teacher-dashboard">Teacher Dashboard</Link></li>
-          <li><Link to="/create-exam">Create Exam</Link></li>
-          <li><Link to="/student-exams">Student Exams</Link></li>
-          <li><Link to="/admin/questions">Questions Admin</Link></li>
-          <li><Link to="/admin/exam-management">Exam Management</Link></li>
-        </ul>
-      </nav>
-
-      <Routes>
-        <Route path="/create-exam" element={<ExamCreator />} />
-        <Route path="/exam-results/:studentExamId" element={<ExamResults />} />
-        <Route path="/exam/:studentExamId" element={<ExamInterface />} />
-        <Route path="/student-exams" element={<StudentExamList />} />
-        <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/history" element={<AttemptHistory />} />
-        <Route path="/admin/users" element={<AdminUsers />} />
-        <Route path="/exam-details" element={<ExamDetails />} />
-        <Route path="/admin/questions" element={<QuestionsAdmin />} />
-        <Route path="/admin/exam-management" element={<ExamManagement />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <div className="app">
+        <NavBar role={userRole} />
+        <main className="app__main">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            
+            {/* Protected Routes - Teacher */}
+            <Route path="/teacher-dashboard" element={<TeacherDashboard teacherUsername={localStorage.getItem('username')} />} />
+            <Route path="/create-exam" element={<ExamCreator />} />
+            
+            {/* Protected Routes - Student */}
+            <Route path="/student-exams" element={<StudentExamList />} />
+            <Route path="/history" element={<AttemptHistory />} />
+            <Route path="/exam/:studentExamId" element={<ExamInterface />} />
+            <Route path="/exam-results/:studentExamId" element={<ExamResults />} />
+            
+            {/* Protected Routes - Admin */}
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/questions" element={<QuestionsAdmin />} />
+            <Route path="/admin/exam-management" element={<ExamManagement />} />
+            
+            {/* Shared Protected Routes */}
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/exam-details" element={<ExamDetails />} />
+            
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+      </div>
     </Router>
   );
 }
+
 export default App;
